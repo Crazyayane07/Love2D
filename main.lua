@@ -87,7 +87,7 @@ function level:trySpawnEnemyBullets()
 		for it, enemy in pairs(enemies) do
 			if it == enemyID then
 				bullet = {}
-				bullet.x = enemy.x + 15
+				bullet.x = enemy.x
 				bullet.y = enemy.y
 				table.insert(enemies_bullets, bullet)
 			end
