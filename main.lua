@@ -17,14 +17,30 @@ enemies = {}
 
 gameOver = false
 
+function level:checkEnemiesPlayerCollision()
+	for it, enemy in pairs(enemies) do
+		isColliding = false
+		playerW, playerH = player.image:getDimensions()
+		playerW = playerW * 0.3
+		playerH = playerH * 0.3
+		enemyW, enemyH = enemy.image:getDimensions()
+		enemyW = enemyW * 0.3
+		enemyH = enemyH * 0.3
+		isColliding = player.x < (enemy.x + enemyW) and enemy.x < (player.x + playerW) and player.y < (enemy.y + enemyH) and enemy.y < (player.y + playerH)
+		if isColliding then
+			gameOver = true
+		end
+	end
+end
+
 function level:clearBullets()
 	for it, bullet in pairs(enemies_bullets) do
-		if bullet.y < 0 then
+		if bullet.y > 1000 then
 			table.remove(enemies_bullets, it)
 		end
 	end
 	for it, bullet in pairs(bullets) do
-		if bullet.y > 1000 then
+		if bullet.y < -10 then
 			table.remove(bullets, it)
 		end
 	end
@@ -36,7 +52,7 @@ function level:checkEnemiesBulletsCollision()
 		playerW, playerH = player.image:getDimensions()
 		playerW = playerW * 0.3
 		playerH = playerH * 0.3
-		isColliding = bullet.x < (player.x + playerW) and player.x < (bullet.x) and bullet.y < (player.y + playerH) and player.y < (bullet.y)
+		isColliding = bullet.x < (player.x + playerW) and player.x < bullet.x and bullet.y < (player.y + playerH) and player.y < bullet.y
 		if isColliding then
 		    table.remove(enemies_bullets, it)
 			gameOver = true
@@ -52,7 +68,7 @@ function level:checkPlayersBulletsCollision()
 			enemyW, enemyH = enemy.image:getDimensions()
 			enemyW = enemyW * 0.3
 			enemyH = enemyH * 0.3
-			isColliding = bullet.x < (enemy.x + enemyW) and enemy.x < (bullet.x) and bullet.y < (enemy.y + enemyH) and enemy.y < (bullet.y)
+			isColliding = bullet.x < (enemy.x + enemyW) and enemy.x < bullet.x and bullet.y < (enemy.y + enemyH) and enemy.y < bullet.y
 			if isColliding then
 			    table.remove(bullets, it)
                 table.remove(enemies, it2)
@@ -190,6 +206,7 @@ function love.update()
 		level.trySpawnEnemyBullets()
 		level.checkPlayersBulletsCollision()
 		level.checkEnemiesBulletsCollision()
+		level.checkEnemiesPlayerCollision()
 		level.clearBullets()
 	end	
 end
