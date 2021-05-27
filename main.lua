@@ -17,6 +17,23 @@ enemies = {}
 
 gameOver = false
 
+function level:checkPlayersBulletsCollision()
+
+	for it, bullet in pairs(bullets) do
+        for it2, enemy in pairs(enemies) do
+			isColliding = false
+			enemyW, enemyH = enemy.image:getDimensions()
+			enemyW = enemyW * 0.3
+			enemyH = enemyH * 0.3
+			isColliding = bullet.x < (enemy.x + enemyW) and enemy.x < (bullet.x) and bullet.y < (enemy.y + enemyH) and enemy.y < (bullet.y)
+			if isColliding then
+			    table.remove(bullets, it)
+                table.remove(enemies, it2)
+			end
+		end
+	end
+end
+
 function level:trySpawnEnemyBullets()
 	if enemies_bullets_generation_tick <= 0 then
 		enemies_bullets_generation_tick = 100
@@ -135,5 +152,6 @@ function love.update()
 	
 	level.tryMoveEnemies()
 	level.trySpawnEnemyBullets()
+	level.checkPlayersBulletsCollision()
 	
 end
