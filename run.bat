@@ -1,0 +1,1 @@
+"C:\Program Files\LOVE\love.exe" "D:\Studia\Skrypty\Love2D"
