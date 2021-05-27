@@ -7,12 +7,30 @@ player.y = 100
 bullets = {}
 bullets_generation_tick = 30
 
+enemies_bullets = {}
+enemies_bullets_generation_tick = 100
+
 enemies_moving_tick = 150
 
 level = {}
 enemies = {}
 
 gameOver = false
+
+function level:trySpawnEnemyBullets()
+	if enemies_bullets_generation_tick <= 0 then
+		enemies_bullets_generation_tick = 100
+		enemyID = love.math.random(0, table.getn(enemies)-1)
+		for it, enemy in pairs(enemies) do
+			if it == enemyID then
+				bullet = {}
+				bullet.x = enemy.x + 15
+				bullet.y = enemy.y
+				table.insert(enemies_bullets, bullet)
+			end
+		end
+	end
+end
 
 function level:tryMoveEnemies()
 	if enemies_moving_tick <= 0 then
@@ -34,15 +52,13 @@ function level:tryMoveEnemies()
 end
 
 function level:spawnEnemies()
-	for i = 4, 1, -1
-		do
-			for j = 5, 1, -1
-				do
-					enemy = {}
-					enemy.x = (love.graphics.getWidth() / 5) * j - 75
-					enemy.y = 50 * i
-					enemy.image = love.graphics.newImage('images/invader.png')
-					table.insert(enemies, enemy)
+	for i = 4, 1, -1 do
+			for j = 5, 1, -1 do
+				enemy = {}
+				enemy.x = (love.graphics.getWidth() / 5) * j - 75
+				enemy.y = 50 * i
+				enemy.image = love.graphics.newImage('images/invader.png')
+				table.insert(enemies, enemy)
 			end
 	end
 end
@@ -71,6 +87,10 @@ end
 
 function love.draw()
     for it, bullet in pairs(bullets) do
+		love.graphics.rectangle("fill",bullet.x, bullet.y, 5,20)
+	end
+	
+	for it, bullet in pairs(enemies_bullets) do
 		love.graphics.rectangle("fill",bullet.x, bullet.y, 5,20)
 	end
 	
@@ -105,10 +125,15 @@ function love.update()
 		bullet.y = bullet.y - 5
 	end
 
+	for it, bullet in pairs(enemies_bullets) do
+		bullet.y = bullet.y + 5
+	end
 
 	bullets_generation_tick = bullets_generation_tick - 1
 	enemies_moving_tick = enemies_moving_tick - 1
+	enemies_bullets_generation_tick = enemies_bullets_generation_tick - 1
 	
 	level.tryMoveEnemies()
+	level.trySpawnEnemyBullets()
 	
 end
