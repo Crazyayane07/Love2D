@@ -2,7 +2,7 @@ love.window.setTitle("Space Invaders Karo")
 
 player = {}
 player.x = 100
-player.y = 100
+player.y = love.graphics.getHeight() * 0.95
 
 bullets = {}
 bullets_generation_tick = 30
@@ -17,6 +17,33 @@ enemies = {}
 
 gameOver = false
 
+function level:clearBullets()
+	for it, bullet in pairs(enemies_bullets) do
+		if bullet.y < 0 then
+			table.remove(enemies_bullets, it)
+		end
+	end
+	for it, bullet in pairs(bullets) do
+		if bullet.y > 1000 then
+			table.remove(bullets, it)
+		end
+	end
+end
+
+function level:checkEnemiesBulletsCollision()
+	for it, bullet in pairs(enemies_bullets) do
+		isColliding = false
+		playerW, playerH = player.image:getDimensions()
+		playerW = playerW * 0.3
+		playerH = playerH * 0.3
+		isColliding = bullet.x < (player.x + playerW) and player.x < (bullet.x) and bullet.y < (player.y + playerH) and player.y < (bullet.y)
+		if isColliding then
+		    table.remove(enemies_bullets, it)
+			gameOver = true
+		end
+	end
+end
+
 function level:checkPlayersBulletsCollision()
 
 	for it, bullet in pairs(bullets) do
@@ -29,6 +56,9 @@ function level:checkPlayersBulletsCollision()
 			if isColliding then
 			    table.remove(bullets, it)
                 table.remove(enemies, it2)
+				if table.getn(enemies) <= 0 then
+					gameOver = true
+				end
 			end
 		end
 	end
@@ -103,55 +133,63 @@ function love.load()
 end
 
 function love.draw()
-    for it, bullet in pairs(bullets) do
-		love.graphics.rectangle("fill",bullet.x, bullet.y, 5,20)
+
+    if gameOver then
+        love.graphics.print("GAME OVER", love.graphics.getWidth() / 2 - 50, love.graphics.getHeight() / 2 - 30)
+    else
+		for it, bullet in pairs(bullets) do
+			love.graphics.rectangle("fill",bullet.x, bullet.y, 5,20)
+		end
+		
+		for it, bullet in pairs(enemies_bullets) do
+			love.graphics.rectangle("fill",bullet.x, bullet.y, 5,20)
+		end
+		
+		for it, enemy in pairs(enemies) do
+			love.graphics.draw(enemy.image, enemy.x, enemy.y, 0, 0.3)
+		end
+					
+		love.graphics.draw(player.image, player.x, 580, 0, 0.3)
 	end
-	
-	for it, bullet in pairs(enemies_bullets) do
-		love.graphics.rectangle("fill",bullet.x, bullet.y, 5,20)
-	end
-	
-	for it, enemy in pairs(enemies) do
-        love.graphics.draw(enemy.image, enemy.x, enemy.y, 0, 0.3)
-	end
-				
-	love.graphics.draw(player.image, player.x, 580, 0, 0.3)
 end
 
 function love.update()
-	if love.keyboard.isDown('right') then
-		if player.x > 750 then
-			player.x = 750
+    if not gameOver then
+		if love.keyboard.isDown('right') then
+			if player.x > 750 then
+				player.x = 750
+			end
+			player.x = player.x + 5
 		end
-		player.x = player.x + 5
-	end
-	if love.keyboard.isDown('left') then
-		if player.x  < 10 then
-			player.x = 10
+		if love.keyboard.isDown('left') then
+			if player.x  < 10 then
+				player.x = 10
+			end
+			player.x = player.x - 5
 		end
-		player.x = player.x - 5
-	end
-	if love.keyboard.isDown('space') then
-		player.shoot()
-	end
-	if love.keyboard.isDown('q') then
-		love.event.quit()
-	end
+		if love.keyboard.isDown('space') then
+			player.shoot()
+		end
+		if love.keyboard.isDown('q') then
+			love.event.quit()
+		end
 
-	for it, bullet in pairs(bullets) do
-		bullet.y = bullet.y - 5
-	end
+		for it, bullet in pairs(bullets) do
+			bullet.y = bullet.y - 5
+		end
 
-	for it, bullet in pairs(enemies_bullets) do
-		bullet.y = bullet.y + 5
-	end
+		for it, bullet in pairs(enemies_bullets) do
+			bullet.y = bullet.y + 5
+		end
 
-	bullets_generation_tick = bullets_generation_tick - 1
-	enemies_moving_tick = enemies_moving_tick - 1
-	enemies_bullets_generation_tick = enemies_bullets_generation_tick - 1
-	
-	level.tryMoveEnemies()
-	level.trySpawnEnemyBullets()
-	level.checkPlayersBulletsCollision()
-	
+		bullets_generation_tick = bullets_generation_tick - 1
+		enemies_moving_tick = enemies_moving_tick - 1
+		enemies_bullets_generation_tick = enemies_bullets_generation_tick - 1
+		
+		level.tryMoveEnemies()
+		level.trySpawnEnemyBullets()
+		level.checkPlayersBulletsCollision()
+		level.checkEnemiesBulletsCollision()
+		level.clearBullets()
+	end	
 end
